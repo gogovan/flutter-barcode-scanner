@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _resultText = 'Unknown';
   final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
 
   @override
@@ -27,14 +27,14 @@ class _MyAppState extends State<MyApp> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
+    String text;
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _flutterBarcodeScannerPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      bool result = await _flutterBarcodeScannerPlugin.isKeyboardConnected() ?? false;
+      text = 'Keyboard connected = $result';
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      text = 'Failed to get result';
     }
 
     // If the widget was removed from the tree while the asynchronous platform
@@ -43,7 +43,7 @@ class _MyAppState extends State<MyApp> {
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _resultText = text;
     });
   }
 
@@ -55,7 +55,7 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+          child: Text('$_resultText\n'),
         ),
       ),
     );

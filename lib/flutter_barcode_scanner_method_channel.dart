@@ -10,9 +10,6 @@ class MethodChannelFlutterBarcodeScanner extends FlutterBarcodeScannerPlatform {
   final methodChannel = const MethodChannel('flutter_barcode_scanner');
 
   @override
-  Future<String?> getPlatformVersion() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformVersion');
-    return version;
-  }
+  Future<bool> isKeyboardConnected() async =>
+      await methodChannel.invokeMethod<bool>('isKeyboardConnected') ?? false;
 }
