@@ -17,9 +17,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _kbConnectedText = 'Unknown';
-  final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
 
-  var _scannedText = '';
+  final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
+  Stream<String>? _barcodeStream;
 
   @override
   void initState() {
@@ -33,6 +33,10 @@ class _MyAppState extends State<MyApp> {
       bool result =
           await _flutterBarcodeScannerPlugin.isScannerConnected() ?? false;
       kbConnected = 'Keyboard connected (at init) = $result';
+
+      if (result) {
+        _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
+      }
     } on PlatformException {
       kbConnected = 'Failed to get result (at init)';
     }
@@ -42,6 +46,12 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _kbConnectedText = kbConnected;
     });
+  }
+
+  @override
+  void dispose() async {
+    await _flutterBarcodeScannerPlugin.unlistenBarcode();
+    super.dispose();
   }
 
   @override
@@ -56,17 +66,17 @@ class _MyAppState extends State<MyApp> {
             Text('$_kbConnectedText\n'),
             StreamBuilder(
               stream: _flutterBarcodeScannerPlugin.getScannerConnectedStream(),
-              builder: (context, data) => Text('Keyboard connected = ${data.data}'),
+              builder: (context, data) {
+                if (data.data == true && _barcodeStream == null) {
+                  _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
+                }
+                return Text('Keyboard connected = ${data.data}');
+              },
             ),
             StreamBuilder(
-              stream: _flutterBarcodeScannerPlugin.listenToBarcode(),
+              stream: _barcodeStream,
               builder: (context, data) {
-                final s = data.data;
-                if (s != null) {
-                  _scannedText += s;
-                }
-
-                return Text(_scannedText);
+                return Text(data.data ?? 'null');
               },
             ),
           ],
