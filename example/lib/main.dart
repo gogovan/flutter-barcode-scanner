@@ -16,8 +16,10 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _platformVersion = 'Unknown';
+  String _kbConnectedText = 'Unknown';
+
   final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
+  Stream<String>? _barcodeStream;
 
   @override
   void initState() {
@@ -25,26 +27,31 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String platformVersion;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+    String kbConnected;
     try {
-      platformVersion =
-          await _flutterBarcodeScannerPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      bool result =
+          await _flutterBarcodeScannerPlugin.isScannerConnected() ?? false;
+      kbConnected = 'Keyboard connected (at init) = $result';
+
+      if (result) {
+        _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
+      }
     } on PlatformException {
-      platformVersion = 'Failed to get platform version.';
+      kbConnected = 'Failed to get result (at init)';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
-      _platformVersion = platformVersion;
+      _kbConnectedText = kbConnected;
     });
+  }
+
+  @override
+  void dispose() async {
+    await _flutterBarcodeScannerPlugin.unlistenBarcode();
+    super.dispose();
   }
 
   @override
@@ -54,8 +61,25 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: Column(
+          children: [
+            Text('$_kbConnectedText\n'),
+            StreamBuilder(
+              stream: _flutterBarcodeScannerPlugin.getScannerConnectedStream(),
+              builder: (context, data) {
+                if (data.data == true && _barcodeStream == null) {
+                  _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
+                }
+                return Text('Keyboard connected = ${data.data}');
+              },
+            ),
+            StreamBuilder(
+              stream: _barcodeStream,
+              builder: (context, data) {
+                return Text(data.data ?? 'null');
+              },
+            ),
+          ],
         ),
       ),
     );

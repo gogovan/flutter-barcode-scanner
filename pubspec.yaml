@@ -13,12 +13,12 @@ dependencies:
     sdk: flutter
   logging: ^1.1.0
   plugin_platform_interface: ^2.0.2
+  rxdart: ^0.27.7
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  dart_code_metrics: ^5.7.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

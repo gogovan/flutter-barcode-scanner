@@ -23,7 +23,13 @@ abstract class FlutterBarcodeScannerPlatform extends PlatformInterface {
     _instance = instance;
   }
 
-  Future<String?> getPlatformVersion() {
-    throw UnimplementedError('platformVersion() has not been implemented.');
+  Future<bool> isKeyboardConnected() {
+    throw UnimplementedError('isKeyboardConnected() has not been implemented.');
+  }
+
+  Stream<bool> getKeyboardConnectedStream() {
+    throw UnimplementedError(
+      'getKeyboardConnectedStream() has not been implemented',
+    );
   }
 }
