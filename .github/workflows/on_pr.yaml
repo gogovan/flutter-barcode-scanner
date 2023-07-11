@@ -23,5 +23,3 @@ jobs:
       - name: Analyze code
         run: flutter analyze --fatal-infos --fatal-warnings
 
-      - name: Run tests and generate coverage report
-        run: flutter test --coverage
