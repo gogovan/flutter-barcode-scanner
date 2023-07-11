@@ -16,7 +16,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String _resultText = 'Unknown';
+  String _kbConnectedText = 'Unknown';
   final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
 
   @override
@@ -25,25 +25,20 @@ class _MyAppState extends State<MyApp> {
     initPlatformState();
   }
 
-  // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> initPlatformState() async {
-    String text;
-    // Platform messages may fail, so we use a try/catch PlatformException.
-    // We also handle the message potentially returning null.
+    String kbConnected;
     try {
-      bool result = await _flutterBarcodeScannerPlugin.isKeyboardConnected() ?? false;
-      text = 'Keyboard connected = $result';
+      bool result =
+          await _flutterBarcodeScannerPlugin.isKeyboardConnected() ?? false;
+      kbConnected = 'Keyboard connected (at init) = $result';
     } on PlatformException {
-      text = 'Failed to get result';
+      kbConnected = 'Failed to get result (at init)';
     }
 
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
     if (!mounted) return;
 
     setState(() {
-      _resultText = text;
+      _kbConnectedText = kbConnected;
     });
   }
 
@@ -54,8 +49,14 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Text('$_resultText\n'),
+        body: Column(
+          children: [
+            Text('$_kbConnectedText\n'),
+            StreamBuilder(
+              stream: _flutterBarcodeScannerPlugin.getKeyboardConnectedStream(),
+              builder: (context, data) => Text('Keyboard connected = ${data.data}'),
+            ),
+          ],
         ),
       ),
     );
