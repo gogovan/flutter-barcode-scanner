@@ -19,6 +19,8 @@ class _MyAppState extends State<MyApp> {
   String _kbConnectedText = 'Unknown';
   final _flutterBarcodeScannerPlugin = FlutterBarcodeScanner();
 
+  var _scannedText = '';
+
   @override
   void initState() {
     super.initState();
@@ -29,7 +31,7 @@ class _MyAppState extends State<MyApp> {
     String kbConnected;
     try {
       bool result =
-          await _flutterBarcodeScannerPlugin.isKeyboardConnected() ?? false;
+          await _flutterBarcodeScannerPlugin.isScannerConnected() ?? false;
       kbConnected = 'Keyboard connected (at init) = $result';
     } on PlatformException {
       kbConnected = 'Failed to get result (at init)';
@@ -53,8 +55,19 @@ class _MyAppState extends State<MyApp> {
           children: [
             Text('$_kbConnectedText\n'),
             StreamBuilder(
-              stream: _flutterBarcodeScannerPlugin.getKeyboardConnectedStream(),
+              stream: _flutterBarcodeScannerPlugin.getScannerConnectedStream(),
               builder: (context, data) => Text('Keyboard connected = ${data.data}'),
+            ),
+            StreamBuilder(
+              stream: _flutterBarcodeScannerPlugin.listenToBarcode(),
+              builder: (context, data) {
+                final s = data.data;
+                if (s != null) {
+                  _scannedText += s;
+                }
+
+                return Text(_scannedText);
+              },
             ),
           ],
         ),
