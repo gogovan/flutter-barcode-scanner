@@ -28,6 +28,8 @@ abstract class FlutterBarcodeScannerPlatform extends PlatformInterface {
   }
 
   Stream<bool> getKeyboardConnectedStream() {
-    throw UnimplementedError('getKeyboardConnectedStream() has not been implemented');
+    throw UnimplementedError(
+      'getKeyboardConnectedStream() has not been implemented',
+    );
   }
 }
