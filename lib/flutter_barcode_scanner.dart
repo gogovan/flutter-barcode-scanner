@@ -1,12 +1,20 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_barcode_scanner/flutter_barcode_scanner_platform_interface.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FlutterBarcodeScanner {
+  FlutterBarcodeScanner() : _hardwareKeyboard = HardwareKeyboard.instance;
+
+  @visibleForTesting
+  FlutterBarcodeScanner.withMockComponents(this._hardwareKeyboard);
+
   StreamController<String?>? _keyEventController;
   KeyEventCallback? _keyEventCallback;
+
+  final HardwareKeyboard _hardwareKeyboard;
 
   /// Check if a barcode scanner is currently connected.
   /// Currently it detects whether a Bluetooth keyboard is connected.
@@ -46,14 +54,14 @@ class FlutterBarcodeScanner {
     var controller = _keyEventController;
 
     if (controller != null) {
-      HardwareKeyboard.instance.removeHandler(_keyEventCallback!);
+      _hardwareKeyboard.removeHandler(_keyEventCallback!);
       unawaited(controller.close());
     }
 
     controller = StreamController<String>();
     _keyEventController = controller;
 
-    HardwareKeyboard.instance.addHandler(_keyEventCallback!);
+    _hardwareKeyboard.addHandler(_keyEventCallback!);
 
     final stream = controller.stream.asBroadcastStream();
 
@@ -66,7 +74,7 @@ class FlutterBarcodeScanner {
   Future<void> unlistenBarcode() async {
     final callback = _keyEventCallback;
     if (callback != null) {
-      HardwareKeyboard.instance.removeHandler(callback);
+      _hardwareKeyboard.removeHandler(callback);
     }
 
     // ignore: avoid-ignoring-return-values, not needed.

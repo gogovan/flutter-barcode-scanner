@@ -67,9 +67,7 @@ class _MyAppState extends State<MyApp> {
             StreamBuilder(
               stream: _flutterBarcodeScannerPlugin.getScannerConnectedStream(),
               builder: (context, data) {
-                if (data.data == true && _barcodeStream == null) {
-                  _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
-                }
+                _barcodeStream = _flutterBarcodeScannerPlugin.listenToBarcode();
                 return Text('Keyboard connected = ${data.data}');
               },
             ),
@@ -79,6 +77,8 @@ class _MyAppState extends State<MyApp> {
                 return Text(data.data ?? 'null');
               },
             ),
+            ElevatedButton(
+                onPressed: () => setState(() {}), child: Text('Refresh')),
           ],
         ),
       ),
